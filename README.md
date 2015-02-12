@@ -27,13 +27,30 @@ This is a simple NGINX load balancer that automatically reconfigures itself acco
 - `PORTS` - Comma separated list of containers ports to monitor. e.g 80,8080
 
 
-## Running
+## Usage
+
+Launch `nginx-lb`
+
 
     docker run -d -p 80:80 --name nginx-lb \
         -e PORTS=80,8080 \
         -e DOCKER_HOST=http://172.17.42.1:2375 \
-        -e DOMAIN=local.mybasedomain.com \
+        -e DOMAIN=server0.example.com \
         rochacon/nginx-lb
+
+
+Launch some app instances
+
+
+	docker run -p 80 --name myapp_1 myimage
+	docker run -p 80 --name myapp_2 myimage
+	docker run -p 80 --name myapp_3 myimage
+
+
+Hit application
+
+	
+	curl myapp.server0.example.com
 
 
 ## Checking current setup

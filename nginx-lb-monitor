@@ -7,14 +7,16 @@ import subprocess
 import sys
 import time
 
+import docker
 import jinja2
-import requests
 
 
-DOCKER_HOST = os.environ['DOCKER_HOST']
+DOCKER_HOST = os.environ.get('DOCKER_HOST', 'unix://var/run/docker.sock')
 DOMAIN = os.environ['DOMAIN']
 HOSTNAME = socket.gethostname()
 PORTS = [int(p) for p in os.environ.get('PORTS', '80').split(',')]
+
+dcli = docker.Client(base_url=DOCKER_HOST)
 
 tmpl = jinja2.Template("""
 error_log /dev/stderr warn;
@@ -64,21 +66,10 @@ http {
 """)
 
 
-def docker_had_events(last_event_ts):
-    r = requests.get('%s/events?since=%d&until=%d' % (DOCKER_HOST, last_event_ts, time.time()))
-    if r.status_code == 500:
-        return False
-    return len(r.content) > 0
-
-
 def docker_apps():
-    r = requests.get('%s/containers/json' % DOCKER_HOST)
-    if r.status_code != 200:
-        raise RuntimeException('get_docker_apps: Docker returned status code: %d' % r.status_code)
-
     apps = {}
 
-    for c in r.json():
+    for c in dcli.containers():
         # Skip this container
         if c['Id'].startswith(HOSTNAME):
             continue
@@ -137,11 +128,7 @@ if __name__ == '__main__':
     try:
         last_event_ts = time.time()
         print('Listening to Docker events since %d' % last_event_ts)
-        while True:
-            if not docker_had_events(last_event_ts):
-                time.sleep(1.0)
-                continue
-
+        for ev in dcli.events(since=last_event_ts, until=time.time()):
             print('Received events, reconfiguring...', end='')
             nginx_config(docker_apps())
             nginx_reload()

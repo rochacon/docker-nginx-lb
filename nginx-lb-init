@@ -1,5 +1,4 @@
 #!/bin/bash
-test -n "$DOCKER_HOST" || { echo 'You must specify the HTTP URL for the Docker API. e.g DOCKER_HOST=http://172.17.42.1:2375'; exit 1; }
 test -n "$DOMAIN" || { echo 'You must specify a base domain through the DOMAIN environment.'; exit 2; }
 
 /usr/local/bin/nginx-lb-monitor &

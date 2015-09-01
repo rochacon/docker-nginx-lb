@@ -122,6 +122,19 @@ def get_app_name(name):
     return '_'.join(name.lstrip('/').split('_')[:-1])
 
 
+def monitor_events(since):
+    """Monitor Docker events and update NGINX config as needed.
+    """
+    statuses = ('destroy', 'kill', 'start', 'stop')
+    for ev in dcli.events(since=since, decode=True):
+        if ev['status'] not in statuses:
+            continue
+        print('Received events, reconfiguring...', end='')
+        nginx_config(docker_apps())
+        nginx_reload()
+        print('done.')
+
+
 if __name__ == '__main__':
     print('Initializing...', end='')
     nginx_config(docker_apps())
@@ -129,18 +142,12 @@ if __name__ == '__main__':
     print('done.')
 
     try:
-        last_event_ts = datetime.datetime.now()
-        print('Listening to Docker events since %s' % last_event_ts)
-        for ev in dcli.events(since=last_event_ts, until=datetime.datetime.now()):
-            print('Received events, reconfiguring...', end='')
-            nginx_config(docker_apps())
-            nginx_reload()
-            print('done.')
-
-            last_event_ts = datetime.datetime.now()
-            print('Listening to Docker events since %s' % last_event_ts)
-
+        since = datetime.datetime.now()
+        while True:
+            print('Listening to Docker events since %s' % since)
+            monitor_events(since)
             time.sleep(1.0)  # avoids burst
+            since = datetime.datetime.now()
 
     except KeyboardInterrupt:
         print('Shutting down...')

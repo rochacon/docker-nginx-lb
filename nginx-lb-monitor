@@ -47,7 +47,7 @@ http {
     upstream {{ name }} {
         least_conn;
         {% for c in containers %}
-        server {{ c.public_ip }}:{{ c.public_port }};
+        server {{ c.public_ip }}:{{ c.public_port }}; # {{ c.id }}
         {% endfor %}
     }
 
@@ -92,6 +92,7 @@ def docker_apps():
                     apps[c_name] = []
 
                 apps[c_name].append({
+                    'id': c['Names'][0].strip('/'),
                     'public_ip': p['IP'] if p['IP'] != '0.0.0.0' else '172.17.42.1',
                     'public_port': p['PublicPort'],
                 })

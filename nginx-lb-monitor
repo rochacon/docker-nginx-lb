@@ -13,7 +13,6 @@ import jinja2
 
 
 DOCKER_HOST = os.environ.get('DOCKER_HOST', 'unix://var/run/docker.sock')
-DOMAIN = os.environ['DOMAIN']
 HOSTNAME = socket.gethostname()
 PORTS = [int(p) for p in os.environ.get('PORTS', '80').split(',')]
 
@@ -54,7 +53,7 @@ http {
 
     server {
         listen 80;
-        server_name {{ name }}.{{ domain }};
+        server_name {{ name }};
 
         location / {
             proxy_set_header Host $host;
@@ -102,7 +101,7 @@ def docker_apps():
 
 def nginx_config(apps):
     with open('/etc/nginx/nginx.conf', 'wb') as fp:
-        fp.write(tmpl.render(apps=apps, domain=DOMAIN))
+        fp.write(tmpl.render(apps=apps))
 
 
 def nginx_reload():

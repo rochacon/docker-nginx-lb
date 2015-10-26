@@ -23,7 +23,6 @@ This is a simple NGINX load balancer that automatically reconfigures itself acco
 ## Configuration
 
 - `DOCKER_HOST` - HTTP address of the Docker host. e.g `http://172.42.17.1:2375`
-- `DOMAIN` - Base domain to set applications virtualhosts. e.g `lo.rochacon.me`
 - `PORTS` - Comma separated list of containers ports to monitor. e.g 80,8080
 
 
@@ -35,7 +34,6 @@ Launch `nginx-lb`
     docker run -d -p 80:80 --name nginx-lb \
         -v /var/run/docker.sock:/var/run/docker.sock:ro \
         -e PORTS=80,8080 \
-        -e DOMAIN=server0.example.com \
         rochacon/nginx-lb
 
 
@@ -45,15 +43,15 @@ Use the `DOCKER_HOST` environment to monitor a Docker daemon listening on TCP.
 Launch some app instances
 
 
-	docker run -p 80 --name myapp_1 myimage
-	docker run -p 80 --name myapp_2 myimage
-	docker run -p 80 --name myapp_3 myimage
+	docker run -p 80 --name myapp.example.com_1 myimage
+	docker run -p 80 --name myapp.example.com_2 myimage
+	docker run -p 80 --name myapp.example.com_3 myimage
 
 
 Hit application
 
 	
-	curl myapp.server0.example.com
+	curl myapp.example.com
 
 
 ## Checking current setup

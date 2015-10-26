@@ -1,5 +1,3 @@
 #!/bin/sh
-test -n "$DOMAIN" || { echo 'You must specify a base domain through the DOMAIN environment.'; exit 2; }
-
 /usr/local/bin/nginx-lb-monitor &
 nginx -g 'daemon off;' $*

@@ -10,7 +10,7 @@ This is a simple NGINX load balancer that automatically reconfigures itself acco
 0. Monitors Docker for events
 0. Repeat setup when an event is found
 
-* An application name is detected by splitting containers name with _ and discarting the last bit. Examples of container names: `myapp_1` `myapp_2` `mywebapp_web_1`. For those examples the app name would be `myapp`, `myapp` and `mywebapp_web`, respectively. Note that `myapp` has two instances to be load balanced to.
+* An application name is detected by splitting containers name with _ and discarting the last bit. The application name is used as the app domain inside NGINX. A few examples of valid container names: `myapp.127.0.0.1.xip.io_1` `myapp.127.0.0.1.xip.io_2` `dev.myapp.com_1`. For those examples the app name would be `myapp.127.0.0.1.xip.io`, `myapp.127.0.0.1.xip.io` and `dev.myapp.com`, respectively. Note that `myapp.127.0.0.1.xip.io` has two instances to be load balanced to.
 
 
 ## Install
